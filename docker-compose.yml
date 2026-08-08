@@ -42,8 +42,8 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - "5672:5672"    # AMQP protocol
-      - "15672:15672"  # Management Web UI
+      - "5672:5672"
+      - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
@@ -119,6 +119,39 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    networks:
+      - cloudpulse-net
+
+  # Unified API Gateway & Control Plane
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api_gateway/Dockerfile
+    container_name: cloudpulse-api-gateway
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: docker
+      PROMETHEUS_URL: http://prometheus:9090
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - order-service
+      - inventory-service
+    networks:
+      - cloudpulse-net
+
+  # React Frontend Dashboard
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: cloudpulse-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
     networks:
       - cloudpulse-net
 
