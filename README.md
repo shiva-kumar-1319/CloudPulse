@@ -40,7 +40,7 @@ flowchart TD
     Inventory -->|"Metrics Scraping /metrics"| Prometheus
     
     Prometheus --> Ingest["Metrics Ingestion Pipeline"]
-    Ingest --> MLModel["ML Anomaly Detector <br/> (Isolation Forest)"]
+    Ingest --> MLModel["ML Anomaly Detector (Isolation Forest)"]
     MLModel -->|"Anomaly Score > 0.75"| Remediation["Remediation Controller"]
     
     Remediation -->|"Restart Pod / Scale"| K8sAPI["Kubernetes API"]
