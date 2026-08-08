@@ -25,31 +25,31 @@ Modern cloud-native environments demand high availability and resilience. Tradit
 
 ```mermaid
 flowchart TD
-    Client[Client / User] -->|REST / JWT| Auth[Auth Service]
-    Client -->|REST / JWT| Order[Order Service]
+    Client["Client / User"] -->|"REST / JWT"| Auth["Auth Service"]
+    Client -->|"REST / JWT"| Order["Order Service"]
     
-    Order -->|Publish order-created| RabbitMQ[(RabbitMQ Event Bus)]
-    RabbitMQ -->|Consume event| Inventory[Inventory Service]
+    Order -->|"Publish order-created"| RabbitMQ[("RabbitMQ Event Bus")]
+    RabbitMQ -->|"Consume event"| Inventory["Inventory Service"]
     
-    Auth --- AuthDB[(Auth DB)]
-    Order --- OrderDB[(Order DB)]
-    Inventory --- InventoryDB[(Inventory DB)]
+    Auth --- AuthDB[("Auth DB")]
+    Order --- OrderDB[("Order DB")]
+    Inventory --- InventoryDB[("Inventory DB")]
     
-    Auth -->|Metrics Scraping /metrics| Prometheus[Prometheus]
-    Order -->|Metrics Scraping /metrics| Prometheus
-    Inventory -->|Metrics Scraping /metrics| Prometheus
+    Auth -->|"Metrics Scraping /metrics"| Prometheus["Prometheus"]
+    Order -->|"Metrics Scraping /metrics"| Prometheus
+    Inventory -->|"Metrics Scraping /metrics"| Prometheus
     
-    Prometheus --> Ingest[Metrics Ingestion Pipeline]
-    Ingest --> MLModel[ML Anomaly Detector\n(Isolation Forest)]
-    MLModel -->|Anomaly Score > 0.75| Remediation[Remediation Controller]
+    Prometheus --> Ingest["Metrics Ingestion Pipeline"]
+    Ingest --> MLModel["ML Anomaly Detector <br/> (Isolation Forest)"]
+    MLModel -->|"Anomaly Score > 0.75"| Remediation["Remediation Controller"]
     
-    Remediation -->|Restart Pod / Scale| K8sAPI[Kubernetes API]
+    Remediation -->|"Restart Pod / Scale"| K8sAPI["Kubernetes API"]
     
-    Chaos[Chaos Testing Tool] -.->|Inject Failure| Order
-    Chaos -.->|Pod Termination| K8sAPI
+    Chaos["Chaos Testing Tool"] -.->|"Inject Failure"| Order
+    Chaos -.->|"Pod Termination"| K8sAPI
 
-    Prometheus --> Grafana[Grafana Dashboards]
-    Remediation -->|Remediation Metrics| Grafana
+    Prometheus --> Grafana["Grafana Dashboards"]
+    Remediation -->|"Remediation Metrics"| Grafana
 ```
 
 ---
