@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudPulse — Self-Healing Microservices Command Center</title>
+    <meta name="description" content="Production-Ready Self-Healing Cloud-Native Microservices Platform with ML Anomaly Detection and Automated Kubernetes Remediation.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        <circle cx="12" cy="12" r="4"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>CloudPulse</h1>
+                    <span class="version-tag">v0.1.0</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#topology" class="nav-item active" id="nav-topology">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    Architecture Topology
+                </a>
+                <a href="#metrics" class="nav-item" id="nav-metrics">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                    Live Observability
+                </a>
+                <a href="#ml-detection" class="nav-item" id="nav-ml">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    ML Anomaly Engine
+                </a>
+                <a href="#chaos" class="nav-item" id="nav-chaos">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    Chaos Injector
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status-indicator">
+                    <span class="status-dot healthy" id="global-status-dot"></span>
+                    <span class="status-text" id="global-status-text">System Healthy</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h2>Self-Healing Operations Dashboard</h2>
+                    <p>Real-Time Microservices Telemetry, ML Anomaly Detection & Kubernetes Remediation</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="btn-reset-baseline">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        Reset Baseline
+                    </button>
+                    <button class="btn btn-primary" id="btn-run-simulation">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Run E2E Demo Cycle
+                    </button>
+                </div>
+            </header>
+
+            <!-- KPI Metric Cards -->
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Total Request Rate</span>
+                        <span class="kpi-badge emerald">Normal</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-requests">48 req/s</div>
+                    <div class="kpi-subtext">Aggregated across 3 microservices</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Latency P95</span>
+                        <span class="kpi-badge emerald" id="badge-latency">85 ms</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-latency">85 ms</div>
+                    <div class="kpi-subtext">Target SLA: &lt; 500 ms</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">HTTP Error Rate</span>
+                        <span class="kpi-badge emerald" id="badge-error">0.2%</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-error-rate">0.2%</div>
+                    <div class="kpi-subtext">4xx / 5xx error responses</div>
+                </div>
+
+                <div class="kpi-card highlight">
+                    <div class="kpi-header">
+                        <span class="kpi-title">ML Anomaly Score</span>
+                        <span class="kpi-badge indigo" id="badge-ml-score">0.13</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-ml-score">0.13</div>
+                    <div class="kpi-subtext">Isolation Forest Threshold: 0.75</div>
+                </div>
+            </section>
+
+            <!-- Microservices Architecture Topology -->
+            <section class="panel-section" id="topology">
+                <div class="panel-header">
+                    <h3>Microservices Topology & Message Flow</h3>
+                    <span class="live-indicator">LIVE STREAMING</span>
+                </div>
+                <div class="topology-container">
+                    <div class="service-node client">
+                        <div class="node-icon">👤</div>
+                        <div class="node-name">Client Gateway</div>
+                        <div class="node-meta">REST + JWT</div>
+                    </div>
+
+                    <div class="flow-arrow">➔</div>
+
+                    <div class="service-node" id="node-auth">
+                        <div class="node-status healthy"></div>
+                        <div class="node-name">Auth Service</div>
+                        <div class="node-sub">Port 8001</div>
+                        <div class="node-db">SQLite / Auth DB</div>
+                    </div>
+
+                    <div class="flow-arrow">➔</div>
+
+                    <div class="service-node" id="node-order">
+                        <div class="node-status healthy" id="status-order-node"></div>
+                        <div class="node-name">Order Service</div>
+                        <div class="node-sub">Port 8002</div>
+                        <div class="node-db">Order DB</div>
+                    </div>
+
+                    <div class="flow-arrow event-bus">⚡ order-created</div>
+
+                    <div class="service-node broker">
+                        <div class="node-name">RabbitMQ Event Bus</div>
+                        <div class="node-sub">Topic Exchange</div>
+                    </div>
+
+                    <div class="flow-arrow">➔</div>
+
+                    <div class="service-node" id="node-inventory">
+                        <div class="node-status healthy" id="status-inventory-node"></div>
+                        <div class="node-name">Inventory Service</div>
+                        <div class="node-sub">Port 8003</div>
+                        <div class="node-db">Inventory DB</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Observability & ML Charts -->
+            <div class="charts-grid" id="metrics">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>HTTP Request Latency (P95 vs Mean)</h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chart-latency"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>ML Anomaly Score (Isolation Forest Model)</h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chart-ml"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chaos Fault Injection & Remediation Logs -->
+            <div class="bottom-grid">
+                <!-- Chaos Injector Controls -->
+                <div class="chaos-panel" id="chaos">
+                    <div class="panel-header">
+                        <h3>Chaos Engineering Fault Injector</h3>
+                    </div>
+                    <p class="panel-desc">Inject controlled faults into running microservices to trigger Prometheus metric degradation and validate automated self-healing.</p>
+                    
+                    <div class="chaos-buttons">
+                        <button class="chaos-btn danger" id="btn-chaos-kill">
+                            <span class="btn-icon">💀</span>
+                            <div class="btn-text">
+                                <strong>Kill Order Pod</strong>
+                                <small>Simulate pod crash</small>
+                            </div>
+                        </button>
+
+                        <button class="chaos-btn warning" id="btn-chaos-latency">
+                            <span class="btn-icon">⏳</span>
+                            <div class="btn-text">
+                                <strong>Inject 5s Latency</strong>
+                                <small>Simulate DB delay</small>
+                            </div>
+                        </button>
+
+                        <button class="chaos-btn warning" id="btn-chaos-errors">
+                            <span class="btn-icon">💥</span>
+                            <div class="btn-text">
+                                <strong>Inject 50% Errors</strong>
+                                <small>Simulate HTTP 500s</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remediation Terminal Logs -->
+                <div class="terminal-panel">
+                    <div class="panel-header">
+                        <h3>Remediation Controller Real-Time Log</h3>
+                        <button class="btn-clear" id="btn-clear-logs">Clear</button>
+                    </div>
+                    <div class="terminal-body" id="remediation-logs">
+                        <div class="log-line info">[SYSTEM] CloudPulse Remediation Controller initialized. Monitoring Prometheus scraping endpoint.</div>
+                        <div class="log-line info">[ML-ENGINE] Isolation Forest anomaly model loaded (Contamination: 0.05).</div>
+                        <div class="log-line success">[GUARDRAIL] Workload allowlist active: [auth-service, order-service, inventory-service].</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

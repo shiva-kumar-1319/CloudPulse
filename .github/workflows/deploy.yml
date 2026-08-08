@@ -1,0 +1,46 @@
+name: CloudPulse Kubernetes Continuous Deployment (CD)
+
+on:
+  workflow_run:
+    workflows: ["CloudPulse Docker Image Build & Push"]
+    types: [completed]
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes Cluster
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmaps/
+          kubectl apply -f k8s/secrets/
+          kubectl apply -f k8s/postgres/
+          kubectl apply -f k8s/rabbitmq/
+          kubectl apply -f k8s/auth_service/
+          kubectl apply -f k8s/order_service/
+          kubectl apply -f k8s/inventory_service/
+          kubectl apply -f k8s/prometheus/
+          kubectl apply -f k8s/grafana/
+          kubectl apply -f k8s/hpa/
+          kubectl apply -f k8s/rbac.yaml
+
+      - name: Verify Deployment Rollout Status
+        run: |
+          kubectl rollout status deployment/auth-service -n cloudpulse --timeout=120s
+          kubectl rollout status deployment/order-service -n cloudpulse --timeout=120s
+          kubectl rollout status deployment/inventory-service -n cloudpulse --timeout=120s

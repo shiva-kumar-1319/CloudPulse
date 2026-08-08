@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudpulse-config
+  namespace: cloudpulse
+data:
+  ENVIRONMENT: "k8s"
+  LOG_LEVEL: "INFO"
+  RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+  RABBITMQ_EXCHANGE: "cloudpulse.events"
+  RABBITMQ_ORDER_CREATED_QUEUE: "inventory.order-created.queue"
+  PROMETHEUS_URL: "http://prometheus:9090"

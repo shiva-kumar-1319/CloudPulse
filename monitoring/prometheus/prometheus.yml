@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'cloudpulse-auth-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['auth-service:8001']
+
+  - job_name: 'cloudpulse-order-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['order-service:8002']
+
+  - job_name: 'cloudpulse-inventory-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['inventory-service:8003']

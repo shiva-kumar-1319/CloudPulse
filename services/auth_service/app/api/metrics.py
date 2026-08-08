@@ -1,0 +1,13 @@
+from fastapi import APIRouter
+from shared.logging import get_metrics_response
+
+router = APIRouter(tags=["Metrics"])
+
+
+@router.get("/metrics")
+@router.get("/auth/metrics")
+def metrics():
+    """
+    Expose Prometheus metrics.
+    """
+    return get_metrics_response()

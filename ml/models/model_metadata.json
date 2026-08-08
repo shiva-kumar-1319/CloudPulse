@@ -1,0 +1,16 @@
+{
+  "model_type": "IsolationForest",
+  "n_estimators": 100,
+  "contamination": 0.05,
+  "features": [
+    "latency_mean",
+    "latency_p95",
+    "error_rate",
+    "request_rate",
+    "cpu_usage",
+    "memory_usage",
+    "pod_restarts"
+  ],
+  "trained_at": "2026-08-08T04:31:55.488975+00:00",
+  "num_samples": 2000
+}

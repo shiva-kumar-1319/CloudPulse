@@ -1,0 +1,13 @@
+{
+  "name": "cloudpulse-platform",
+  "version": "0.1.0",
+  "description": "Production-Ready Self-Healing Cloud-Native Microservices Platform",
+  "scripts": {
+    "test": "python -m pytest -v tests/",
+    "serve": "npx firebase-tools serve --only hosting",
+    "deploy": "npx firebase-tools deploy --only hosting"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.8.0"
+  }
+}

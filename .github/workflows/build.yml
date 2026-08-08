@@ -1,0 +1,59 @@
+name: CloudPulse Docker Image Build & Push
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_PREFIX: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build & Push Microservices Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Metadata (Tags, Labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME_PREFIX }}
+
+      - name: Build Auth Service Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/auth_service/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/auth-service:${{ github.sha }}
+
+      - name: Build Order Service Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/order_service/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/order-service:${{ github.sha }}
+
+      - name: Build Inventory Service Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/inventory_service/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/inventory-service:${{ github.sha }}
