@@ -30,7 +30,7 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CLOUDPULSE_PLATFORM }}'
           channelId: live
-          projectId: cloudpulse-platform
+          projectId: cloudpulse-97c41
         continue-on-error: true
 
       - name: Deployment Audit Log
