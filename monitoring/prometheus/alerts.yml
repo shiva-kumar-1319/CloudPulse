@@ -1,0 +1,32 @@
+groups:
+  - name: cloudpulse-slo-alerts
+    rules:
+      - alert: ServiceLatencyP95Breached
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le, service)) > 0.500
+        for: 15s
+        labels:
+          severity: critical
+          tier: microservices
+        annotations:
+          summary: "Target service {{ $labels.service }} P95 latency exceeded 500ms SLA"
+          description: "P95 latency is {{ $value }}s on {{ $labels.service }}."
+
+      - alert: HighHTTPErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[1m])) / sum(rate(http_requests_total[1m])) > 0.05
+        for: 10s
+        labels:
+          severity: critical
+          tier: microservices
+        annotations:
+          summary: "HTTP 5xx error rate exceeded 5% threshold"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.service }}."
+
+      - alert: MLAnomalyScoreBreach
+        expr: cloudpulse_ml_anomaly_score > 0.75
+        for: 5s
+        labels:
+          severity: emergency
+          target: remediation-controller
+        annotations:
+          summary: "ML Isolation Forest anomaly detector triggered self-healing threshold"
+          description: "Multi-variate telemetry anomaly score is {{ $value }} for service {{ $labels.service }}."
