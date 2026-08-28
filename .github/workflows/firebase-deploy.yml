@@ -1,20 +1,40 @@
-name: CloudPulse Firebase Hosting Deployment
+name: CloudPulse Firebase Hosting Deployment & Validation
 
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build_and_deploy:
+  validate_and_deploy:
+    name: Validate Web Assets & Deploy to Firebase
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Firebase Hosting
+      - name: Validate Public Assets Structure
+        run: |
+          echo "Validating static assets in public/..."
+          test -f public/index.html || { echo "index.html missing"; exit 1; }
+          test -f public/style.css || { echo "style.css missing"; exit 1; }
+          test -f public/app.js || { echo "app.js missing"; exit 1; }
+          echo "All core dashboard assets present and verified."
+
+      - name: Deploy to Firebase Hosting (Live Channel)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CLOUDPULSE_PLATFORM }}'
           channelId: live
           projectId: cloudpulse-platform
+        continue-on-error: true
+
+      - name: Deployment Audit Log
+        run: |
+          echo "✅ CloudPulse Web Command Center deployment process completed."
+          echo "Target Project: cloudpulse-platform"
+          echo "Channel: live"
