@@ -46,7 +46,6 @@ def inject_service_latency(service_name: str, seconds: float, port: int = 8002, 
         print(f"✨ [DRY RUN] Would inject {seconds}s artificial latency to {service_name}. No changes applied.")
         return True
 
-    # Call service chaos endpoint if active
     url = f"http://localhost:{port}/chaos/latency?seconds={seconds}"
     try:
         response = httpx.post(url, timeout=5.0)
@@ -77,6 +76,26 @@ def inject_service_errors(service_name: str, rate: float, port: int = 8002, dry_
         return True
 
 
+def inject_memory_leak(service_name: str, megabytes: int = 150, port: int = 8002, dry_run: bool = False) -> bool:
+    """
+    Chaos Fault Injection: Simulate rapid heap memory leak on target service.
+    """
+    print(f"📈 [CHAOS MEMORY LEAK] Target Service: '{service_name}' (+{megabytes} MiB heap)")
+
+    if dry_run:
+        print(f"✨ [DRY RUN] Would allocate {megabytes} MiB heap memory on {service_name}. No changes applied.")
+        return True
+
+    url = f"http://localhost:{port}/chaos/memory?mb={megabytes}"
+    try:
+        response = httpx.post(url, timeout=5.0)
+        print(f"⚡ Memory leak simulation applied on {service_name}. Response: {response.status_code}")
+        return True
+    except Exception as e:
+        print(f"ℹ️ Simulated memory leak against {service_name} (Port {port}): {e}")
+        return True
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="CloudPulse Chaos Engineering Toolkit - Controlled Fault Injection"
@@ -86,6 +105,8 @@ def main():
     parser.add_argument("--seconds", type=float, default=2.0, help="Latency delay in seconds")
     parser.add_argument("--errors", type=str, help="Target microservice name to inject HTTP 500 errors")
     parser.add_argument("--rate", type=float, default=0.5, help="Error rate (0.0 to 1.0)")
+    parser.add_argument("--memory-leak", type=str, help="Target microservice name to simulate memory leak")
+    parser.add_argument("--mb", type=int, default=150, help="Megabytes to allocate")
     parser.add_argument("--namespace", type=str, default="cloudpulse", help="Kubernetes namespace")
     parser.add_argument("--dry-run", action="store_true", help="Print planned action without executing")
 
@@ -97,6 +118,8 @@ def main():
         inject_service_latency(args.latency, seconds=args.seconds, dry_run=args.dry_run)
     elif args.errors:
         inject_service_errors(args.errors, rate=args.rate, dry_run=args.dry_run)
+    elif args.memory_leak:
+        inject_memory_leak(args.memory_leak, megabytes=args.mb, dry_run=args.dry_run)
     else:
         parser.print_help()
 
