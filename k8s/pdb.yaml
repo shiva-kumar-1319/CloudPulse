@@ -1,0 +1,41 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: order-service-pdb
+  namespace: cloudpulse
+  labels:
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/part-of: cloudpulse
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: order-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: auth-service-pdb
+  namespace: cloudpulse
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: cloudpulse
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: auth-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: inventory-service-pdb
+  namespace: cloudpulse
+  labels:
+    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/part-of: cloudpulse
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: inventory-service
