@@ -3,7 +3,7 @@
 [![CloudPulse Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION)
 [![Architecture](https://img.shields.io/badge/architecture-Microservices-orange.svg)](#3-architecture)
 [![Python](https://img.shields.io/badge/python-3.12%2B-green.svg)](https://www.python.org/)
-[![Firebase Hosting](https://img.shields.io/badge/firebase-hosting-amber.svg)](https://cloudpulse-platform.web.app)
+[![Firebase Hosting](https://img.shields.io/badge/firebase-hosting-amber.svg)](https://cloudpulse-97c41.web.app)
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)](LICENSE)
 
 > **Architected & Developed by:** [Shiva Kumar](https://github.com/shiva-kumar-1319)  
