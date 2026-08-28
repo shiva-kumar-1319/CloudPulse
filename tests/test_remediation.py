@@ -32,6 +32,20 @@ def test_remediation_policy_guardrails():
     assert "cooldown" in reason_cooldown
 
 
+def test_remediation_exponential_backoff_and_status():
+    policy = RemediationPolicyEngine(cooldown_seconds=10, score_threshold=0.75)
+    status_initial = policy.get_service_status("order-service")
+    assert status_initial["in_allowlist"] is True
+    assert status_initial["in_cooldown"] is False
+    assert status_initial["consecutive_count"] == 0
+
+    # Trigger first remediation
+    policy.record_remediation("order-service")
+    status_after = policy.get_service_status("order-service")
+    assert status_after["in_cooldown"] is True
+    assert status_after["consecutive_count"] == 1
+
+
 def test_remediation_api_endpoint():
     # Reset policy state
     policy_engine.last_remediation_time.clear()
