@@ -1,154 +1,168 @@
-# CloudPulse — Autonomous Self-Healing Cloud-Native Microservices Platform
+# CloudPulse — Self-Healing Microservices Platform
 
-[![CloudPulse Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION)
-[![Architecture](https://img.shields.io/badge/architecture-Microservices-orange.svg)](#3-architecture)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION)
+[![Architecture](https://img.shields.io/badge/architecture-Microservices-orange.svg)](#architecture)
 [![Python](https://img.shields.io/badge/python-3.12%2B-green.svg)](https://www.python.org/)
-[![Firebase Hosting](https://img.shields.io/badge/firebase-hosting-amber.svg)](https://cloudpulse-97c41.web.app)
+[![Live Demo](https://img.shields.io/badge/firebase-live%20demo-amber.svg)](https://cloudpulse-97c41.web.app)
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)](LICENSE)
 
-> **Architected & Developed by:** [Shiva Kumar](https://github.com/shiva-kumar-1319)  
-> **Executive Summary:** An enterprise-grade, distributed microservices platform featuring continuous telemetry observability, **Isolation Forest ML anomaly detection**, and **closed-loop Kubernetes automated remediation** with sub-2.4s MTTR.
+> Built by [Shiva Kumar](https://github.com/shiva-kumar-1319)
+
+CloudPulse is a cloud-native microservices system I built to explore what it actually takes to make distributed services fix themselves when things go wrong. The idea started simple — I wanted something that could detect a problem and respond to it without anyone having to wake up at 3am.
+
+It ended up being a lot more involved than I expected. There's an ML layer running Isolation Forest to catch anomalies in real time, a remediation controller that decides what to do about them, and a live web dashboard where you can watch everything happen (or break things intentionally with the chaos tools).
 
 ---
 
-## 🌟 Recruiter & Engineering Highlights
+## What it does
 
-- **⚡ Sub-2.4s MTTR Self-Healing**: Out-of-band ML Anomaly Detector triggers automated pod recycling & scaling before human SREs can respond.
-- **🛡️ Multi-Tier Guardrail Engine**: Rate-limiting, allowlist enforcement, and exponential backoff cooldowns prevent restart thrashing during persistent external outages.
-- **📦 Database-per-Service Isolation**: Independent schema boundaries across Auth, Order, and Inventory microservices with eventual consistency via RabbitMQ.
-- **📬 Zero-Loss Event-Driven Messaging**: RabbitMQ Topic Exchanges with Dead Letter Queue (DLQ) and idempotency keys guarantee message durability.
-- **📊 Real-Time Interactive Command Center**: Live web dashboard deployed to Firebase Hosting with real-time telemetry streaming, interactive chaos injection, and API playground.
+- **Detects problems automatically** — Isolation Forest model watches latency, error rates, and resource usage. When something drifts, it flags it before it cascades.
+- **Fixes itself** — The remediation controller triggers pod restarts or scaling actions through the Kubernetes API. Average response time is under 2.5 seconds from detection to recovery.
+- **Survives broker failures** — RabbitMQ with a Dead Letter Queue means no events are lost even when a downstream service is temporarily down.
+- **Has sensible guardrails** — Exponential backoff and cooldown timers prevent it from restart-looping during a real external outage.
+- **Lets you break things safely** — The chaos suite can inject latency, trigger OOM events, or cascade 500 errors so you can actually test the self-healing without waiting for production incidents.
 
 ---
 
-## 📊 Benchmark & Performance Summary
+## Benchmark numbers
 
-| Metric / Scenario | Traditional Manual On-Call | Static Prometheus Alerting | CloudPulse Autonomous Platform |
+These are from local testing, not production:
+
+| Scenario | Manual on-call | Prometheus alerts only | CloudPulse |
 | :--- | :--- | :--- | :--- |
-| **Pod OOM / SIGKILL Crash** | ~8 - 15 minutes | ~3 - 5 minutes | **1.84s (Autonomous)** |
-| **Database Pool Contention** | ~12 - 25 minutes | ~5 - 8 minutes | **2.40s (Autonomous)** |
-| **HTTP 500 Error Cascade** | ~10 - 20 minutes | ~4 - 6 minutes | **2.12s (Autonomous)** |
-| **Data Loss on Broker Failure** | Risk of dropped events | Risk of dropped events | **0% Loss (Durable DLQ)** |
+| Pod crash (OOM/SIGKILL) | ~8–15 min | ~3–5 min | **1.84s** |
+| DB connection pool exhaustion | ~12–25 min | ~5–8 min | **2.40s** |
+| HTTP 500 error cascade | ~10–20 min | ~4–6 min | **2.12s** |
+| Message loss on broker failure | High risk | High risk | **0% (DLQ)** |
 
 ---
 
-## 🏗️ System Architecture
+## Architecture
 
 ```mermaid
 flowchart TD
-    Client["Client / Web Dashboard"] -->|"REST / JWT"| Gateway["API Gateway (Port 8000)"]
-    Gateway -->|"Route /auth"| Auth["Auth Service (Port 8001)"]
-    Gateway -->|"Route /orders"| Order["Order Service (Port 8002)"]
-    
-    Order -->|"Publish order-created"| RabbitMQ[("RabbitMQ Topic Exchange + DLQ")]
-    RabbitMQ -->|"Consume event"| Inventory["Inventory Service (Port 8003)"]
-    
-    Auth --- AuthDB[("Auth PostgreSQL")]
-    Order --- OrderDB[("Order PostgreSQL")]
-    Inventory --- InventoryDB[("Inventory PostgreSQL")]
-    
-    Auth -->|"Scrape /metrics"| Prometheus["Prometheus Server"]
-    Order -->|"Scrape /metrics"| Prometheus
-    Inventory -->|"Scrape /metrics"| Prometheus
-    
-    Prometheus --> Ingest["Telemetry Pipeline"]
-    Ingest --> MLModel["ML Anomaly Engine (Isolation Forest)"]
-    MLModel -->|"Score > 0.75"| Remediation["Remediation Policy Controller"]
-    
-    Remediation -->|"Kubernetes API Rollout"| K8sAPI["Kubernetes Control Plane"]
-    
-    Chaos["Chaos Testing Suite"] -.->|"Inject Latency / 500s / OOM"| Order
+    Client["Browser / Web Dashboard"] -->|"REST + JWT"| Gateway["API Gateway :8000"]
+    Gateway -->|"/auth"| Auth["Auth Service :8001"]
+    Gateway -->|"/orders"| Order["Order Service :8002"]
+
+    Order -->|"publish order-created"| RabbitMQ[("RabbitMQ + DLQ")]
+    RabbitMQ -->|"consume"| Inventory["Inventory Service :8003"]
+
+    Auth --- AuthDB[("Auth DB")]
+    Order --- OrderDB[("Order DB")]
+    Inventory --- InventoryDB[("Inventory DB")]
+
+    Auth -->|"/metrics"| Prometheus["Prometheus"]
+    Order -->|"/metrics"| Prometheus
+    Inventory -->|"/metrics"| Prometheus
+
+    Prometheus --> Ingest["Telemetry Ingest"]
+    Ingest --> MLModel["Anomaly Detector (Isolation Forest)"]
+    MLModel -->|"score > 0.75"| Remediation["Remediation Controller"]
+    Remediation -->|"Kubernetes API"| K8sAPI["K8s Control Plane"]
+
+    Chaos["Chaos Suite"] -.->|"inject faults"| Order
 ```
+
+The four services are completely independent — separate databases, separate message consumers. They talk through the API gateway or via RabbitMQ events, never directly.
 
 ---
 
-## 🗂️ Repository Structure
+## Project layout
 
 ```text
 cloudpulse/
-├── services/                  # Microservices Architecture
-│   ├── api_gateway/           # Unified API Gateway & Swagger playground
-│   ├── auth_service/          # Authentication & JWT identity provider
-│   ├── order_service/         # Order creation & REST API service
-│   └── inventory_service/     # Inventory stock & RabbitMQ consumer service
+├── services/
+│   ├── api_gateway/        # Routes requests, handles CORS and auth verification
+│   ├── auth_service/       # JWT login and user management
+│   ├── order_service/      # Order creation, circuit breaker simulation
+│   └── inventory_service/  # Inventory updates via RabbitMQ consumer
 │
-├── shared/                    # Shared Core Python Libraries
-│   ├── schemas/               # Common Pydantic v2 schemas & event contracts
-│   ├── messaging/             # Async RabbitMQ client wrappers
-│   ├── auth/                  # JWT handler & bcrypt password hashing
-│   ├── logging/               # Structured JSON logger & Prometheus middleware
-│   └── config/                # Environment configuration loader
+├── shared/                 # Code shared across services
+│   ├── schemas/            # Pydantic v2 request/response models
+│   ├── messaging/          # RabbitMQ client wrapper
+│   ├── auth/               # JWT helpers and password hashing
+│   ├── logging/            # Structured JSON logging + Prometheus middleware
+│   └── config/             # Env config loader
 │
-├── ml/                        # Machine Learning Anomaly Detection Engine
-│   ├── data/                  # Synthetic & telemetry training dataset
-│   ├── ingestion/             # Prometheus metric ingestion client
-│   ├── training/              # Isolation Forest model training script
-│   ├── inference/             # Real-time anomaly detector & explainability exporter
-│   └── models/                # Serialized model (.pkl) & metadata
+├── ml/
+│   ├── data/               # Synthetic telemetry training data
+│   ├── ingestion/          # Pulls metrics from Prometheus
+│   ├── training/           # Trains and serializes the Isolation Forest model
+│   ├── inference/          # Real-time scoring and anomaly explanation
+│   └── models/             # Saved model + metadata
 │
-├── remediation/               # Automated Kubernetes Remediation Controller
-│   ├── controller.py          # Remediation alert API server & decision engine
-│   ├── kubernetes_client.py   # RBAC-scoped Kubernetes API client
-│   └── policies.py            # Cooldown timers, allowlist, rate limits
+├── remediation/
+│   ├── controller.py       # FastAPI server that receives alerts and acts on them
+│   ├── kubernetes_client.py
+│   └── policies.py         # Cooldowns, rate limits, allowlists
 │
-├── chaos/                     # Chaos Engineering Toolkit
-│   ├── chaos.py               # Fault injection CLI tool
-│   └── README.md              # Chaos testing manual
+├── chaos/
+│   ├── chaos.py            # CLI for injecting faults
+│   └── README.md
 │
-├── k8s/                       # Kubernetes Manifests
-│   ├── pdb.yaml               # PodDisruptionBudgets
-│   ├── network_policy.yaml    # Zero-Trust NetworkPolicies
-│   ├── auth_service/          # Deployments, Services, ConfigMaps
-│   ├── order_service/
-│   ├── inventory_service/
-│   ├── rabbitmq/
-│   ├── postgres/
+├── k8s/                    # Kubernetes manifests
+│   ├── pdb.yaml
+│   ├── network_policy.yaml
 │   └── rbac.yaml
 │
-├── terraform/                 # Infrastructure as Code (AWS EKS)
-│   ├── modules/               # VPC & EKS modules
-│   └── main.tf
+├── terraform/              # AWS EKS infra (VPC, node groups, IAM)
 │
-├── public/                    # Firebase Web Command Center (HTML/CSS/JS)
-│   ├── index.html             # Command center UI & topology explorer
-│   ├── style.css              # Glassmorphism dark-mode styling
-│   └── app.js                 # Reactive simulation state machine & Chart.js
+├── public/                 # Firebase-hosted web dashboard
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
 │
-├── tests/                     # Unit, integration & resilience test suites
-├── demo.py                    # End-to-end self-healing CLI demonstration
-├── firebase.json              # Firebase Hosting configuration & security headers
-└── docker-compose.yml         # Local multi-container development stack
+├── tests/                  # Integration and resilience test suites
+├── demo.py                 # End-to-end self-healing demo script
+├── firebase.json
+└── docker-compose.yml
 ```
 
 ---
 
-## 🚀 Quickstart & Execution
+## Running it locally
 
-### 1. Run the Self-Healing Demonstration CLI
+### Quick demo (no Kubernetes needed)
+
 ```bash
-# Execute end-to-end self-healing cycle
 python demo.py
 ```
 
-### 2. Run with Docker Compose
+This runs through a simulated self-healing cycle end-to-end and prints what the system would do at each step.
+
+### Full stack with Docker Compose
+
 ```bash
-# Start microservices, Postgres, RabbitMQ, and Prometheus
+# Start everything
 docker compose up -d
 
-# Check running containers
+# Check status
 docker compose ps
 ```
 
-### 3. Deploy Command Center to Firebase Hosting
+### Deploy the dashboard
+
 ```bash
-# Deploy to Firebase
 firebase deploy --only hosting
 ```
 
+Live: [cloudpulse-97c41.web.app](https://cloudpulse-97c41.web.app)
+
 ---
 
-## 👨‍💻 Author & Contact
+## Things I learned building this
 
-**Shiva Kumar**  
+The hardest part wasn't the ML — Isolation Forest is well documented and scikit-learn makes it straightforward. The tricky part was deciding *what* the remediation controller should do and *when* it should back off. A naive implementation will just restart pods in a loop when there's an external dependency failure, which makes everything worse.
+
+The cooldown + rate limit logic in `policies.py` went through about four rewrites before I was happy with it.
+
+The chaos suite was genuinely useful for testing. Injecting a 2-second network delay into the order service and watching the ML score spike and the remediation kick in is satisfying in a way that unit tests aren't.
+
+---
+
+## Author
+
+Shiva Kumar  
 GitHub: [@shiva-kumar-1319](https://github.com/shiva-kumar-1319)  
-Project Repository: [CloudPulse on GitHub](https://github.com/shiva-kumar-1319/CloudPulse)
+Repo: [CloudPulse on GitHub](https://github.com/shiva-kumar-1319/CloudPulse)

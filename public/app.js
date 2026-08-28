@@ -1,8 +1,8 @@
-// CloudPulse Autonomous Self-Healing Microservices Command Center Logic
-// Author: Shiva Kumar
+// CloudPulse dashboard — handles the simulation state machine, chart updates, and all the interactive bits
+// Written by Shiva Kumar
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Platform Telemetry State
+    // Holds all the current metric values and simulation state
     const state = {
         status: 'healthy', // 'healthy', 'degraded', 'recovering'
         metrics: {

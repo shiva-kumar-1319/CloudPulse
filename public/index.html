@@ -86,8 +86,8 @@
             <!-- Recruiter Highlights Banner -->
             <div class="recruiter-banner" id="recruiter-banner">
                 <div class="recruiter-content">
-                    <h3>⚡ CloudPulse Self-Healing Cloud-Native Platform</h3>
-                    <p>Designed & Engineered by <strong>Shiva Kumar</strong> • Production Microservices, Isolation Forest ML Anomaly Detection & Closed-Loop Kubernetes Remediation</p>
+                    <h3>⚡ CloudPulse — Self-Healing Microservices</h3>
+                    <p>Built by <strong>Shiva Kumar</strong> • Four independent microservices, an Isolation Forest anomaly detector, and a remediation controller that automatically restarts misbehaving pods.</p>
                 </div>
                 <div class="recruiter-stats">
                     <div class="r-stat-box">
@@ -108,8 +108,8 @@
             <!-- Top Header -->
             <header class="top-header">
                 <div class="header-title">
-                    <h2>Microservices Autonomous Command Center</h2>
-                    <p>Real-Time Telemetry Stream • ML Anomaly Engine • Automated Kubernetes Remediation Controller</p>
+                    <h2>System Dashboard</h2>
+                    <p>Monitoring real-time service health, ML anomaly scoring, and automated infrastructure remediation.</p>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-secondary" id="btn-reset-baseline" title="Reset all simulated spikes back to normal operational state">
@@ -437,24 +437,27 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
+
             <!-- Recruiter Highlights & Architecture Deep Dive Section -->
             <section class="panel-section" id="recruiter-showcase">
                 <div class="panel-header">
                     <h3>
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        Architecture Decisions & Recruiter Highlights
+                        How it's built — and why
                     </h3>
-                    <span class="kpi-badge indigo">System Design Showcase</span>
+                    <span class="kpi-badge indigo">Architecture Notes</span>
                 </div>
 
                 <div class="api-grid" style="margin-bottom: 20px;">
                     <div class="api-card">
-                        <h4 style="color: #fff; margin-bottom: 8px; font-size: 15px;">🏗️ Core Architectural Patterns</h4>
+                        <h4 style="color: #fff; margin-bottom: 8px; font-size: 15px;">🏗️ Key design decisions</h4>
                         <ul style="color: var(--text-secondary); font-size: 12.5px; padding-left: 18px; line-height: 1.7;">
-                            <li><strong>Database-per-Service:</strong> Complete database isolation preventing cross-domain schema coupling.</li>
-                            <li><strong>Event-Driven Asynchrony:</strong> RabbitMQ Topic Exchange with Dead Letter Queue (DLQ) and idempotency keys.</li>
-                            <li><strong>ML Out-of-Band Detection:</strong> Isolation Forest algorithm detecting multi-variate non-linear anomalies.</li>
-                            <li><strong>Autonomous Kubernetes Remediation:</strong> RBAC-scoped closed-loop controller with cooldown guardrails.</li>
+                            <li><strong>Database-per-Service:</strong> Each service owns its own database. No shared schemas, no accidental coupling.</li>
+                            <li><strong>RabbitMQ + DLQ:</strong> Events are published async and consumers are idempotent, so nothing is lost even if a service is temporarily down.</li>
+                            <li><strong>Isolation Forest:</strong> Watches latency, error rate, CPU, and memory together — catches the patterns that individual metric thresholds miss.</li>
+                            <li><strong>Remediation cooldowns:</strong> The controller won't restart the same pod more than once per minute. Took a few iterations to get right.</li>
                         </ul>
                     </div>
 
